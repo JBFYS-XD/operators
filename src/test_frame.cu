@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <iostream>
-#include "../sgemm_cuda-core.cu"
+#include "sgemm_cuda-core.cu"
 
 /**
  * @note 测试环境 GTX 1060
