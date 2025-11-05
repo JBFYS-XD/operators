@@ -1,8 +1,18 @@
 #pragma once
 #include <cuda_runtime.h>
+#include <iostream>
 
 #define matrix_pos(i, j, n) ((i) * n + (j))
 #define FETCH_FLOAT4(pointer)  (reinterpret_cast<float4*>(&(pointer))[0])
+
+#define CUDA_CHECK(call) \
+    do { \
+        cudaError_t err = call; \
+        if (err != cudaSuccess) { \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " - " << cudaGetErrorString(err) << std::endl; \
+            exit(1); \
+        } \
+    } while(0)
 
 // 对 shared 内存和寄存器俩个缓存进行 双缓冲 隐藏延迟
 
@@ -166,4 +176,20 @@ void sgemm_gKernel(float* A, float* B, float* C, int M, int N, int K) {
             FETCH_FLOAT4(C[matrix_pos(row_idx_calc + i, col_idx_calc + j, N)]) = FETCH_FLOAT4(temp[i][j]);
         }
     }
+}
+
+void sgemm_g(int m, int n, int k, float* matrix_A, float* matrix_B, float* matrix_C) {
+    constexpr int BLOCK_M = 128;
+    constexpr int BLOCK_N = 128;
+    constexpr int BLOCK_K = 8;
+    constexpr int THREAD_X = 8;
+    constexpr int THREAD_Y = 8;
+    dim3 blockSize(16, 16);
+    dim3 gridSize(((n) + BLOCK_N - 1) / BLOCK_N,
+                    ((m) + BLOCK_M - 1) / BLOCK_M);
+
+    sgemm_gKernel<BLOCK_M, BLOCK_N, BLOCK_K, THREAD_X, THREAD_Y><<<gridSize, blockSize>>>
+                    (matrix_A, matrix_B, matrix_C, m, n, k);
+    CUDA_CHECK(cudaDeviceSynchronize());
+
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include <cuda_runtime.h>
 
 #define matrix_pos(i, j, n) ((i) * n + (j))
@@ -51,4 +52,17 @@ void sgemm_gKernel(const float* A, const float* B, float* C, int M, int N, int K
             C[matrix_pos(idx_y + i, idx_x + j, N)] = temp[i][j];
         }
     }
+}
+
+void sgemm_g(int m, int n, int k, float* matrix_A, float* matrix_B, float* matrix_C) {
+    constexpr int BLOCKSIZE = 16;
+    constexpr int K_TILL = 16;
+    constexpr int CFACTOR = 2;
+    dim3 blockSize(BLOCKSIZE, BLOCKSIZE);
+    dim3 gridSize(((n + CFACTOR - 1) / CFACTOR + BLOCKSIZE - 1) / BLOCKSIZE,
+                    ((m + CFACTOR - 1) / CFACTOR + BLOCKSIZE - 1) / BLOCKSIZE);
+
+    sgemm_gKernel<BLOCKSIZE, K_TILL, CFACTOR><<<gridSize, blockSize>>>(matrix_A, matrix_B, matrix_C, m, n, k);
+    cudaDeviceSynchronize();
+
 }

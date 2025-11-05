@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <iostream>
-#include "sgemm_cuda-core.cu"
+#include "../final_oper/sgemm_cuda-core.cu"
 
 /**
  * @note 测试环境 GTX 1060
@@ -115,22 +115,11 @@ int main() {
     fprintf(stdout, "---------- step three ----------\n");
     fprintf(stdout, "Calc SGEMM use MyKernel\n");
     
-    // constexpr int BLOCKSIZE = 16;
-    constexpr int BLOCK_M = 128;
-    constexpr int BLOCK_N = 128;
-    constexpr int BLOCK_K = 8;
-    constexpr int THREAD_X = 8;
-    constexpr int THREAD_Y = 8;
-    dim3 blockSize(16, 16);
-    dim3 gridSize(((n) + BLOCK_N - 1) / BLOCK_N,
-                    ((m) + BLOCK_M - 1) / BLOCK_M);
     
     cudaEventRecord(start);
     
     for (int i = 0; i < nIter; i ++) {
-        sgemm_gKernel<BLOCK_M, BLOCK_N, BLOCK_K, THREAD_X, THREAD_Y><<<gridSize, blockSize>>>
-                        (matrix_A_device, matrix_B_device, matrix_C_device, m, n, k);
-        CUDA_CHECK(cudaDeviceSynchronize());
+        sgemm_g(m, n, k, matrix_A_device, matrix_B_device, matrix_C_device);
     }
     // cudaDeviceSynchronize();
     

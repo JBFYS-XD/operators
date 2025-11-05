@@ -1,12 +1,25 @@
+#pragma once
 #include <cuda_runtime.h>
+#include <iostream>
 
 #define matrix_pos(i, j, n) ((i) * n + (j))
 #define FETCH_FLOAT4(pointer)  (reinterpret_cast<float4*>(&(pointer))[0])
 
-/**
- * @note 这是 cuda core 中的最优解决方案， 在 M、N、K 均匀时略快于 cublas
- * @note 注意， 此版本并未做边界处理， 请保证 M, N, K 合法
- */
+#define CUDA_CHECK(call) \
+    do { \
+        cudaError_t err = call; \
+        if (err != cudaSuccess) { \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " - " << cudaGetErrorString(err) << std::endl; \
+            exit(1); \
+        } \
+    } while(0)
+
+// 对单线程处理的数据分布做出改变， 提高内存合并
+// 改前： 每个线程处理 2 维连续的 8 * 8
+// 改后： 离散的 (4 * 2) * 8 个元素
+
+// CUBLAS: 5.010714 ms
+// MyKernel: 4.618322 ms
 
 template<int BLOCK_M, int BLOCK_N, int BLOCK_K, int THREAD_X, int THREAD_Y>
 __global__ 
@@ -173,7 +186,18 @@ void sgemm_gKernel(float* A, float* B, float* C, int M, int N, int K) {
 
 }
 
+void sgemm_g(int m, int n, int k, float* matrix_A, float* matrix_B, float* matrix_C) {
+    constexpr int BLOCK_M = 128;
+    constexpr int BLOCK_N = 128;
+    constexpr int BLOCK_K = 8;
+    constexpr int THREAD_X = 8;
+    constexpr int THREAD_Y = 8;
+    dim3 blockSize(16, 16);
+    dim3 gridSize(((n) + BLOCK_N - 1) / BLOCK_N,
+                    ((m) + BLOCK_M - 1) / BLOCK_M);
 
+    sgemm_gKernel<BLOCK_M, BLOCK_N, BLOCK_K, THREAD_X, THREAD_Y><<<gridSize, blockSize>>>
+                    (matrix_A, matrix_B, matrix_C, m, n, k);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-
-
+}
