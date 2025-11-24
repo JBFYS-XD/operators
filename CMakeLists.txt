@@ -12,6 +12,18 @@ set(CMAKE_CUDA_EXTENSIONS OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -ccbin ${CMAKE_CXX_COMPILER}")
+
+# Cutlass配置
+set(CUTLASS_DIR "${CMAKE_SOURCE_DIR}/libs/cutlass")
+set(CUTLASS_INCLUDE_DIR "${CUTLASS_DIR}/include")
+set(CUTLASS_UTIL_INCLUDE_DIR "${CUTLASS_DIR}/tools/util/include")
+
+# 验证Cutlass目录存在
+if(NOT EXISTS "${CUTLASS_INCLUDE_DIR}/cutlass/cutlass.h")
+    message(FATAL_ERROR "Cutlass headers not found at ${CUTLASS_INCLUDE_DIR}")
+endif()
+
 message("------\t loading libraries \t------")
 
 find_package(CUDAToolkit REQUIRED)
