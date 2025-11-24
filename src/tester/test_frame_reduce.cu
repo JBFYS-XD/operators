@@ -6,9 +6,10 @@
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
 #include <thrust/execution_policy.h>
-#include "../final_oper/reduce.cu"
 
 #define LEN 32 * 1024 * 1024
+
+extern float reduce(int n, float* input);
 
 void random_element(int n, float* a) {
     for (int i = 0; i < n; i ++) {
