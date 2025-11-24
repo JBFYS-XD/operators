@@ -5,7 +5,6 @@
 #include <iostream>
 #include <thrust/scan.h>
 #include <thrust/device_vector.h>
-#include "../prefix-sum/prefix_sum_v2.cu"
 
 #define LEN 1024 * 1024
 
@@ -17,6 +16,8 @@
             exit(1); \
         } \
     } while(0)
+
+extern void prefix_sum(int n, const float* input, float* output);
 
 void random_element(int n, float* a) {
     for (int i = 0; i < n; i ++) {

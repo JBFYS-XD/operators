@@ -1,8 +1,6 @@
-#include <bits/stdc++.h>
-#include <cuda.h>
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include <time.h>
+#include <cuda_runtime.h>
+#include <cstdio>
+#include <iostream>
 
 #define BLOCKSIZE 256
 #define WARPSIZE 32

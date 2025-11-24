@@ -4,12 +4,6 @@
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <iostream>
-#include "../final_oper/sgemm_cuda-core.cu"
-
-/**
- * @note 测试环境 GTX 1060
- */
-
 
 #define LEN 8192        // 1 << 13
 #define KLEN 8192       // 1 << 13
@@ -25,6 +19,7 @@
         } \
     } while(0)
 
+extern void sgemm_g(int m, int n, int k, float* matrix_A, float* matrix_B, float* matrix_C);
 
 void random_matrix(int m, int n, float* a) {
     for (int i = 0; i < m; i ++) {

@@ -1,5 +1,5 @@
-#pragma once
 #include <cuda_runtime.h>
+#include <cstdio>
 #include <iostream>
 
 #define matrix_pos(i, j, n) ((i) * n + (j))
