@@ -2,20 +2,10 @@
 #include <cstdlib>
 #include <cstring>
 #include <cuda_runtime.h>
-#include <iostream>
 #include <thrust/scan.h>
 #include <thrust/device_vector.h>
 
 #define LEN 1024 * 1024
-
-#define CUDA_CHECK(call) \
-    do { \
-        cudaError_t err = call; \
-        if (err != cudaSuccess) { \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " - " << cudaGetErrorString(err) << std::endl; \
-            exit(1); \
-        } \
-    } while(0)
 
 extern void prefix_sum(int n, const float* input, float* output);
 
@@ -119,6 +109,9 @@ int main() {
     } else {
         fprintf(stdout, "\033[31m---------- Wrong Answer ----------\033[37m \n");
     }
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     free(input_host);
     free(output_host_thr);

@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <cuda_runtime.h>
-#include <iostream>
 #include <thrust/device_vector.h>
 #include <thrust/reduce.h>
 #include <thrust/execution_policy.h>
@@ -89,6 +88,9 @@ int main() {
     } else {
         fprintf(stdout, "\033[31m---------- Wrong Answer ----------\033[37m \n");
     }
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     free(input_host);
 

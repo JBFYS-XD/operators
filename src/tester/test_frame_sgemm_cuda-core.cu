@@ -3,21 +3,11 @@
 #include <cstring>
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
-#include <iostream>
 
 #define LEN 8192        // 1 << 13
 #define KLEN 8192       // 1 << 13
 
 #define matrix_pos(i, j, n) ((i) * n + (j))
-
-#define CUDA_CHECK(call) \
-    do { \
-        cudaError_t err = call; \
-        if (err != cudaSuccess) { \
-            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " - " << cudaGetErrorString(err) << std::endl; \
-            exit(1); \
-        } \
-    } while(0)
 
 extern void sgemm_g(int m, int n, int k, float* matrix_A, float* matrix_B, float* matrix_C);
 
@@ -138,6 +128,9 @@ int main() {
     } else {
         fprintf(stdout, "\033[31m---------- Wrong Answer ----------\033[37m \n");
     }
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     free(matrix_A_host);
     free(matrix_B_host);
